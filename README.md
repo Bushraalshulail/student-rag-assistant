@@ -47,9 +47,8 @@ This method boosts accuracy and reduces hallucination compared to pure generativ
 
 ##  Workflow Diagram
 
-> Add the following image to `/screenshots/workflow.png`
+<img width="2048" height="604" alt="image" src="https://github.com/user-attachments/assets/45552175-0dab-40be-a73b-558f29b7d891" />
 
-![student-rag-workflow](./screenshots/workflow.png)
 
 ---
 
