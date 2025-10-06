@@ -1,4 +1,4 @@
-# 🤖 Student RAG Assistant
+#  Student RAG Assistant
 
 An Arabic-friendly student assistant chatbot that uses **RAG (Retrieval-Augmented Generation)** powered by **Google Gemini** and built on **[n8n](https://n8n.io)**.
 
