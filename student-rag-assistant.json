@@ -1,0 +1,215 @@
+{
+  "name": "student-rag-assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "'19sCvuMHBukB22evYaieYXgFB9A6nNhix' in parents and mimeType = 'application/pdf'",
+        "returnAll": true,
+        "filter": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -208,
+        688
+      ],
+      "id": "42d6dca8-5462-49f1-bb96-e9a4d05daf46",
+      "name": "Search files and folders",
+      "executeOnce": false,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UkgWYzuOS3i051zK",
+          "name": "Google Drive account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        240,
+        688
+      ],
+      "id": "bd2bc09a-6f36-4f3f-9b33-03dad82d65c3",
+      "name": "Extract from File",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        536,
+        912
+      ],
+      "id": "f0b4c980-f4b0-426f-9e42-347251e6e0fc",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "r9eAZ1I75Bd43WPZ",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "= English:\nYou are an intelligent AI assistant trained to read and understand uploaded documents in depth.\nFirst, check if the uploaded document contains an answer to the user's question. If yes, provide a clear and professional answer based on the document.\nIf the answer is not found in the document, use your general knowledge to provide a helpful and polite response.\n:memo: Arabic:\nأنت مساعد ذكي مدرب على قراءة وفهم المستندات المرفوعة بشكل دقيق.\nأولاً، تحقق مما إذا كان المستند يحتوي على إجابة على سؤال المستخدم. إذا كانت الإجابة موجودة، فقم بتقديم إجابة واضحة واحترافية مستندة إلى محتوى الملف.\nإذا لم تكن الإجابة موجودة في المستند، فاستخدم معرفتك العامة لتقديم رد مفيد ومهذب للمستخدم.\nUser's Question:\n{{ $('Webhook').item.json.body.message }}\nanswer for users:{{ $json.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        688
+      ],
+      "id": "1a5c60d2-0d37-4a69-95e0-a3dbafbdf517",
+      "name": "AI Agent",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        16,
+        688
+      ],
+      "id": "9c2641bd-b894-4204-a476-da61d49cb4d0",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UkgWYzuOS3i051zK",
+          "name": "Google Drive account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0b417089-d01d-4144-8bf2-799b29b22884",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -432,
+        688
+      ],
+      "id": "ebcf3a84-0632-4e60-8e55-db7198493499",
+      "name": "Webhook",
+      "webhookId": "0b417089-d01d-4144-8bf2-799b29b22884"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        816,
+        688
+      ],
+      "id": "230298b9-a3b1-46f5-aba7-d401467abc38",
+      "name": "Respond to Webhook2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "57753fc7-e0c4-4f42-a06e-7b37de3d29ba",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f5106cc44fb4c849b369ae86cf22cf7baf5986b3bc76e7911fc2666e7942b35b"
+  },
+  "id": "aH5qanoZf7RK6nZM",
+  "tags": []
+}
