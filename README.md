@@ -60,8 +60,3 @@ This method boosts accuracy and reduces hallucination compared to pure generativ
 -  Proper authentication setup in n8n:
   - Google Drive OAuth2
   - Gemini (via AI Agent node)
-
----
-
-##  Project Structure
-
